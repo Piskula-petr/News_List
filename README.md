@@ -11,7 +11,7 @@ List of latest articles from news servers. <br><br>
 Spring MVC <br>
 Jsoup library <br>
 Apache Tomcat <br>
-HTML / CSS <br>
+JSP / CSS <br>
 JavaScript <br><br>
 
 ## News servers
