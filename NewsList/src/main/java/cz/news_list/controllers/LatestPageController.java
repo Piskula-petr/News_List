@@ -11,13 +11,13 @@ import cz.news_list.article_builder.ArticleBuilder;
 import cz.news_list.beans.Article;
 
 @Controller
-public class NewestPageController {
+public class LatestPageController {
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String showNewestPage(Model model) throws IOException {
+	public String showLatestPage(Model model) throws IOException {
 		
 		ArticleBuilder articleBuilder = new ArticleBuilder();
-		articleBuilder.getNewestArticles();
+		articleBuilder.getLatestArticles();
 
 		model.addAttribute("articles", Article.sortListByDate(articleBuilder.getList()));
 		

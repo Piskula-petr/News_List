@@ -12,13 +12,13 @@ class ArticleSearcherTest {
 // Nejnovější Test //////////////////////////////////////////////////////////////////////////////////
 	
 	@Test
-	void getNewestArticles() {
+	void getLatestArticles() {
 		
 		System.out.println("__________________________");
 		System.out.println("Nejnovější články START");
 		
 		ArticleBuilder articleBuilder = new ArticleBuilder();
-		articleBuilder.getNewestArticles();
+		articleBuilder.getLatestArticles();
 		
 		// Podmínky splnění tetu
 		assertNotNull(articleBuilder.getList());

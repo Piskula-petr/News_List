@@ -85,7 +85,7 @@ public class ArticleBuilder {
 	/**
 	 * 	@return - vrací List nejnovějších článků z každé sekce
 	 */
-	public List<Article> getNewestArticles() {
+	public List<Article> getLatestArticles() {
 		
 		// Runnable TN.CZ		
 		Runnable runnableTN = new Runnable() {
