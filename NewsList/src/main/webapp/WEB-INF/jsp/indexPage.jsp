@@ -79,18 +79,21 @@
 	
 	        element.innerHTML = date;
 	    }
-	
-	    // Vyhledání všech elementů
+		
+	    // Hlavní funkce
 	    window.onload = function() {
 	    	
+	    	// Vyhledání všech elementů
 	        var elements = document.querySelectorAll("#articleCreationDate");
 	
 	        for (var i = 0; i < elements.length; i++) {
+	        	
+	        	// Změní formát datumu
 	            changeDateFormat(elements[i]);
 	        }
 	    }
 	    
-	    // Zvítaznění aktivního linku
+	    // Zvýraznění aktuálního linku
 	    var currentPage = location.pathname.split('/')[2];
 	    var links = document.querySelectorAll("#sideNavigation a");
 	    
