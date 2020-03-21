@@ -28,7 +28,7 @@ public class ArticlesFromNOVINKY {
 	private final String WEATHER_URL = "https://www.novinky.cz/pocasi";
 	
 	// Index článku
-	private int indexOfArticle;
+	private int indexOfArticle = 1;
 	
 	// Počet přidaných článků
 	private int articlesAdded;
@@ -56,13 +56,13 @@ public class ArticlesFromNOVINKY {
 			while (articlesAdded != numberOfRequiredArticles) {
 				
 				// Blok článku
-				Element element = Jsoup.connect(serverURL).timeout(1000).get().select("div.f_Bh").get(indexOfArticle);
+				Element element = Jsoup.connect(serverURL).timeout(1000).get().select("li[data-dot=clanek_" + (indexOfArticle) + "]").first();
 				
 				// Přeskakování článků bez Linku
 				while (element.select("a").attr("href").isEmpty()) {
-					element = Jsoup.connect(serverURL).timeout(1000).get().select("div.f_Bh").get(indexOfArticle++);
+					element = Jsoup.connect(serverURL).timeout(1000).get().select("li[data-dot=clanek_" + (indexOfArticle++) + "]").first();
 				}
-				
+			
 				// Link článku
 				String articleLink = element.select("a").attr("href");
 				
@@ -93,9 +93,22 @@ public class ArticlesFromNOVINKY {
 					article.setCreationDate(articleCreationDate);
 					article.setTopic(topic);
 					
-					articles.add(article);
+					// Vyhledání duplicitních článků
+					boolean duplicateArticle = false;
+					for (Article articleFromList : articles) {
+						
+						if (article.getName().equals(articleFromList.getName())) {
+							
+							duplicateArticle = true;
+						}
+					}
 					
-					articlesAdded++;
+					// Přídání článku do Listu, pokud nebyl nalezený duplicitní v jiné sekci
+					if (!duplicateArticle) {
+						
+						articles.add(article);
+						articlesAdded++;
+					}
 				}
 				
 				indexOfArticle++;
@@ -114,7 +127,7 @@ public class ArticlesFromNOVINKY {
 	public void zeroingArticleData() {
 		
 		articlesAdded = 0;
-		indexOfArticle = 0;
+		indexOfArticle = 1;
 	}
 	
 // Gettery //////////////////////////////////////////////////////////////////////////////////////////

@@ -100,9 +100,22 @@ public class ArticleFromTN {
 					article.setCreationDate(LocalDateTime.parse(articleCreationDate, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssz")));
 					article.setTopic(topic);
 					
-					articles.add(article);
+					// Vyhledání duplicitních článků
+					boolean duplicateArticle = false;
+					for (Article articleFromList : articles) {
+						
+						if (article.getName().equals(articleFromList.getName())) {
+							
+							duplicateArticle = true;
+						}
+					}
 					
-					articlesAdded++;
+					// Přídání článku do Listu, pokud nebyl nalezený duplicitní v jiné sekci
+					if (!duplicateArticle) {
+						
+						articles.add(article);
+						articlesAdded++;
+					}
 				}
 				
 				indexOfArticle++;

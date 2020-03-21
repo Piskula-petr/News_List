@@ -6,7 +6,9 @@
 	
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		
 		<link rel="stylesheet" type="text/css" href="style.css"/>
+		
 		<link rel="shortcut icon" href="favicon.png" type="image/png"/>
 		<title>News List</title>
 	</head>
@@ -50,7 +52,7 @@
 	</body>
 	
 	<!-- Scripty -->
-	<script>
+	<script type="text/javascript">
 	
 		// Změní formát datumu
 	    function changeDateFormat(element) {
@@ -72,6 +74,7 @@
 	        // Dvoučíselný formát minut
 	        if (date.getMinutes() < 10) {
 	            date = articleCreationDate + " " + date.getHours() + ":0" + date.getMinutes();
+	        
 	        } else date = articleCreationDate + " " + date.getHours() + ":" + date.getMinutes();
 	
 	        element.innerHTML = date;

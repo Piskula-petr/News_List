@@ -3,7 +3,10 @@ package cz.news_list.article_searcher;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
@@ -100,9 +103,22 @@ public class ArticlesFromIDNES {
 					article.setCreationDate(articleCreationDate);
 					article.setTopic(topic);
 					
-					articles.add(article);
+					// Vyhledání duplicitních článků
+					boolean duplicateArticle = false;
+					for (Article articleFromList : articles) {
+						
+						if (article.getName().equals(articleFromList.getName())) {
+							
+							duplicateArticle = true;
+						}
+					}
 					
-					articlesAdded++;
+					// Přídání článku do Listu, pokud nebyl nalezený duplicitní v jiné sekci
+					if (!duplicateArticle) {
+						
+						articles.add(article);
+						articlesAdded++;
+					}
 				}
 				
 				indexOfArticle++;
