@@ -47,7 +47,7 @@ public class ArticleFromTN {
 	 * 
 	 * 	@return - vrací List článků 
 	 */
-	public List<Article> getArticles(List<Article> articles, String serverURL, String topic, int numberOfRequiredArticles) {
+public List<Article> getArticles(List<Article> articles, String serverURL, String topic, int numberOfRequiredArticles) {
 		
 		this.numberOfRequiredArticles = numberOfRequiredArticles;
 		
@@ -57,37 +57,37 @@ public class ArticleFromTN {
 			while (articlesAdded != numberOfRequiredArticles) {
 				
 				// Blok článku
-				Element element = Jsoup.connect(serverURL).timeout(1000).get().select("div.article_medium_perex").get(indexOfArticle);
+				Element element = Jsoup.connect(serverURL).timeout(1000).get().select("div.article-with-preview").get(indexOfArticle);
 
 				// Přeskakování promo článků
-				while (element.parent().hasClass("article_promo")) {
-					element = Jsoup.connect(serverURL).timeout(1000).get().select("div.article_medium_perex").get(indexOfArticle++);
+				while (element.hasClass("topic-new-item-promo")) {
+					element = Jsoup.connect(serverURL).timeout(1000).get().select("div.article-with-preview").get(indexOfArticle++);
 				}
 				
 				// Link článku
-				String articleLink = element.select("h3 a").attr("href");
+				String articleLink = element.select("h2 a").attr("href");
 				
 				// Obrázek článku
 				String articleImage = element.select("img").attr("data-original-srcset");
 				
 				// Název článku
-				String articleName = element.select("h3").text();
+				String articleName = element.select("h2 a").text();
 				
 				// Datum článku
-				String articleCreationDate = element.select("div.imginfo").text();
+				String articleCreationDate = element.select("div.dateTime .date").text();
 				
 				// Úprava formátu datumu před parsováním
-				if (articleCreationDate.contains("dnes")) {
-					String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'"));
-					articleCreationDate = articleCreationDate.replaceAll("dnes ", today);
-					articleCreationDate = articleCreationDate + ":00+01:00";
-
-				} else if (articleCreationDate.contains("včera")) {
-					String yesterday = LocalDate.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'"));
-					articleCreationDate = articleCreationDate.replace("včera ", yesterday);
-					articleCreationDate = articleCreationDate + ":00+01:00";
+				if (articleCreationDate.isEmpty()) {
 					
-				} else articleCreationDate = Jsoup.connect(articleLink).timeout(1000).get().select("meta[property=article:published_time]").attr("content");
+					String today = LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy "));
+					articleCreationDate = today + element.select("div.dateTime .time").text();
+					
+				} else if (articleCreationDate.equals("včera")) {
+					
+					String yesterday = LocalDate.now().minusDays(1).format(DateTimeFormatter.ofPattern("dd.MM.yyyy "));
+					articleCreationDate = yesterday + element.select("div.dateTime .time").text();
+					
+				} else articleCreationDate = articleCreationDate + LocalDate.now().getYear() + " " + element.select("div.dateTime .time").text();
 				
 				// Přidání článků do Listu pokud má všechny parametry
 				if (!articleLink.isEmpty() && !articleImage.isEmpty() && !articleName.isEmpty() && !articleCreationDate.isEmpty()) {
@@ -97,7 +97,7 @@ public class ArticleFromTN {
 					article.setImage(articleImage);
 					article.setName(articleName);
 					article.setSource("tn.cz");
-					article.setCreationDate(LocalDateTime.parse(articleCreationDate, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssz")));
+					article.setCreationDate(LocalDateTime.parse(articleCreationDate, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")));
 					article.setTopic(topic);
 					
 					// Vyhledání duplicitních článků
