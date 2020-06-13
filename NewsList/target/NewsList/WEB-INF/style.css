@@ -1,0 +1,126 @@
+body {
+	height: 100%;
+	width: 1220px;
+	display: table;
+	margin: auto;
+	font-family: Verdana;
+}
+
+/*_____________________________________ záhlaví _____________________________________*/
+#fullWidthBar {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	height: 50px;
+	background: #004080;
+	z-index: -1;
+}
+
+header {
+	height: 50px;
+	margin: 0px 0px 5px 217px;
+	background: #004080;
+	font-size: 2.5em;
+	font-weight: bold;
+}
+
+header a {
+	text-decoration: none;
+	color: white;
+}
+
+header img {
+	position: absolute;
+	margin: 5px 0px 0px 15px;
+	width: 40px;
+	height: 40px;
+}
+
+/*_____________________________________ navigační menu _____________________________________*/
+#sideNavigation {
+	float: left;
+	width: 180px;
+}
+
+#sideNavigation table {
+	margin: 23px 0px 0px 0px;
+}
+
+#sideNavigation td {
+	width: 200px;
+	padding: 20px 0px 0px 0px;
+}
+
+#sideNavigation a {
+	float: right;
+	text-decoration: none;
+	color: #808080;
+	font-size: 1.5em;
+	padding: 0px;
+}
+
+#sideNavigation a:hover {
+	color: black;
+	text-decoration: underline;
+}
+
+#sideNavigation .active {
+	color: black;
+	text-decoration: underline;
+}
+
+/*_____________________________________ články _____________________________________*/
+#articleContainer {
+	float: right;
+	border: 1px solid #C2C2C2;
+	border-radius: 10px;
+	margin: 50px 0px 0px 0px; 
+	width: 1000px;
+}
+
+#articleContainer:hover {
+	opacity: 0.8;
+}
+
+#articleContainer:hover #articleName {
+	text-decoration: underline;
+}
+
+#articleContainer #articleName {
+	float: right;
+	font-size: 1.6em;
+	color: black;
+	font-weight: bold;
+	width: 675px;
+	height: 6rem;
+	margin: 30px 30px 0px 30px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+#articleContainer img {
+	float: left;
+	border-radius: 10px;
+	width: 230px;
+	margin: 30px 0px 30px 30px;
+}
+
+#articleContainer table {
+	position: absolute;
+	width: 675px;
+	float: right;
+	margin: 135px 0px 0px 292px;
+}
+
+#articleContainer table tr td {
+	width: 35%;
+}
+
+#articleContainer table div {
+	float: left;
+	margin: 0px;
+	color: #808080;
+}

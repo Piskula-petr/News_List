@@ -9,9 +9,9 @@ import java.util.List;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 
-import cz.news_list.beans.Article;
+import cz.news_list.pojo.Article;
 
-public class ArticleFromTN {
+public class ArticlesFromTN {
 	
 	// Domácí
 	private final String HOME_URL = "https://tn.nova.cz/tema/7564-domaci/";
@@ -38,7 +38,7 @@ public class ArticleFromTN {
 	private int numberOfRequiredArticles;
 	
 	/**
-	 * 	Metoda vyselektuje nejnovější články ze zadané sekce
+	 * 	Metoda vyselektuje nejnovější články ze zadaného URL serveru
 	 * 
 	 * 	@param articles - vstupní List článků (prázdný / naplněný)
 	 * 	@param serverURL - odkaz na sekci článků
@@ -47,7 +47,7 @@ public class ArticleFromTN {
 	 * 
 	 * 	@return - vrací List článků 
 	 */
-public List<Article> getArticles(List<Article> articles, String serverURL, String topic, int numberOfRequiredArticles) {
+	public List<Article> getArticles(List<Article> articles, String serverURL, String topic, int numberOfRequiredArticles) {
 		
 		this.numberOfRequiredArticles = numberOfRequiredArticles;
 		
@@ -142,6 +142,7 @@ public List<Article> getArticles(List<Article> articles, String serverURL, Strin
 	public String getHomeURL() {
 		return HOME_URL;
 	}
+	
 	public String getForeignURL() {
 		return FOREIGN_URL;
 	}

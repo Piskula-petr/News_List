@@ -3,28 +3,19 @@ package cz.news_list.article_builder;
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.news_list.article_searcher.ArticleFromTN;
 import cz.news_list.article_searcher.ArticlesFromIDNES;
 import cz.news_list.article_searcher.ArticlesFromNOVINKY;
-import cz.news_list.beans.Article;
+import cz.news_list.article_searcher.ArticlesFromTN;
+import cz.news_list.pojo.Article;
 
 public class ArticleBuilder {
 
-	private ArticleFromTN articleFromTN;
+	private ArticlesFromTN articlesFromTN;
 	private ArticlesFromIDNES articlesFromIDNES;
 	private ArticlesFromNOVINKY articlesFromNOVINKY;
-	private List<Article> articles;
 	
-// Konstruktor //////////////////////////////////////////////////////////////////////////////////////
-	
-	public ArticleBuilder() {
-		
-		articleFromTN = new ArticleFromTN();
-		articlesFromIDNES = new ArticlesFromIDNES();
-		articlesFromNOVINKY = new ArticlesFromNOVINKY();
-		articles = new ArrayList<>();
-	}
-	
+	private List<Article> articles = new ArrayList<>();
+
 	/**
 	 * 	Metoda spouštící 3 vlákna podle zadaných runnablů
 	 * 
@@ -33,6 +24,8 @@ public class ArticleBuilder {
 	 * 	@param runnableNOVINKY - runnable NOVINKY.CZ
 	 */
 	private void startThreads(Runnable runnableTN, Runnable runnableIDNES, Runnable runnableNOVINKY) {
+		
+		articles.clear();
 		
 		try {
 			
@@ -49,10 +42,10 @@ public class ArticleBuilder {
 			threadIDNES.join();
 			threadNOVINKY.join();
 			
-			// Dodatečné spuštění vláken, pokud není dosašeno minimální množství článků
+			// Dodatečné spuštění vláken, pokud není dosaženo minimální množství článků
 			while (articles.size() <= 9) {
 				
-				if (articleFromTN.getArticlesAdded() != articleFromTN.getNumberOfRequiredArticles()) {
+				if (articlesFromTN.getArticlesAdded() != articlesFromTN.getNumberOfRequiredArticles()) {
 					
 					threadTN = new Thread(runnableTN);
 					threadTN.start();
@@ -93,20 +86,20 @@ public class ArticleBuilder {
 			@Override
 			public void run() {
 				
-				articleFromTN.getArticles(articles, articleFromTN.getForeignURL(), "Zahraniční", 1);
-				articleFromTN.zeroingArticleData();
+				articlesFromTN.getArticles(articles, articlesFromTN.getForeignURL(), "Zahraniční", 1);
+				articlesFromTN.zeroingArticleData();
 				
-				articleFromTN.getArticles(articles, articleFromTN.getHomeURL(), "Domácí", 1);
-				articleFromTN.zeroingArticleData();
+				articlesFromTN.getArticles(articles, articlesFromTN.getHomeURL(), "Domácí", 1);
+				articlesFromTN.zeroingArticleData();
 				
-				articleFromTN.getArticles(articles, articleFromTN.getEconomyURL(), "Ekonomika", 1);
-				articleFromTN.zeroingArticleData();
+				articlesFromTN.getArticles(articles, articlesFromTN.getEconomyURL(), "Ekonomika", 1);
+				articlesFromTN.zeroingArticleData();
 				
-				articleFromTN.getArticles(articles, articleFromTN.getKrimiURL(), "Krimi", 1);
-				articleFromTN.zeroingArticleData();
+				articlesFromTN.getArticles(articles, articlesFromTN.getKrimiURL(), "Krimi", 1);
+				articlesFromTN.zeroingArticleData();
 				
-				articleFromTN.getArticles(articles, articleFromTN.getWeatherURL(), "Počasí", 1);
-				articleFromTN.zeroingArticleData();
+				articlesFromTN.getArticles(articles, articlesFromTN.getWeatherURL(), "Počasí", 1);
+				articlesFromTN.zeroingArticleData();
 			}
 		};
 		
@@ -175,7 +168,8 @@ public class ArticleBuilder {
 			@Override
 			public void run() {
 				
-				articleFromTN.getArticles(articles, articleFromTN.getHomeURL(), "Domácí", 4);
+				articlesFromTN.getArticles(articles, articlesFromTN.getHomeURL(), "Domácí", 4);
+				articlesFromTN.zeroingArticleData();
 			}
 		};
 		
@@ -186,6 +180,7 @@ public class ArticleBuilder {
 			public void run() {
 				
 				articlesFromIDNES.getArticles(articles, articlesFromIDNES.getHomeURL(), "Domácí", 4);
+				articlesFromIDNES.zeroingArticleData();
 			}
 		};
 		
@@ -196,6 +191,7 @@ public class ArticleBuilder {
 			public void run() {
 				
 				articlesFromNOVINKY.getArticles(articles, articlesFromNOVINKY.getHomeURL(), "Domácí", 4);
+				articlesFromNOVINKY.zeroingArticleData();
 			}
 		};
 		
@@ -218,7 +214,8 @@ public class ArticleBuilder {
 			@Override
 			public void run() {
 				
-				articleFromTN.getArticles(articles, articleFromTN.getForeignURL(), "Zahraniční", 4);
+				articlesFromTN.getArticles(articles, articlesFromTN.getForeignURL(), "Zahraniční", 4);
+				articlesFromTN.zeroingArticleData();
 			}
 		};
 		
@@ -229,6 +226,7 @@ public class ArticleBuilder {
 			public void run() {
 				
 				articlesFromIDNES.getArticles(articles, articlesFromIDNES.getForeignURL(), "Zahraniční", 4);
+				articlesFromIDNES.zeroingArticleData();
 			}
 		};
 		
@@ -239,6 +237,7 @@ public class ArticleBuilder {
 			public void run() {
 				
 				articlesFromNOVINKY.getArticles(articles, articlesFromNOVINKY.getForeignURL(), "Zahraniční", 4);
+				articlesFromNOVINKY.zeroingArticleData();
 			}
 		};
 		
@@ -261,7 +260,8 @@ public class ArticleBuilder {
 			@Override
 			public void run() {
 				
-				articleFromTN.getArticles(articles, articleFromTN.getEconomyURL(), "Ekonomika", 4);
+				articlesFromTN.getArticles(articles, articlesFromTN.getEconomyURL(), "Ekonomika", 4);
+				articlesFromTN.zeroingArticleData();
 			}
 		};
 		
@@ -272,6 +272,7 @@ public class ArticleBuilder {
 			public void run() {
 				
 				articlesFromIDNES.getArticles(articles, articlesFromIDNES.getEconomyURL(), "Ekonomika", 4);
+				articlesFromIDNES.zeroingArticleData();
 			}
 		};
 		
@@ -282,6 +283,7 @@ public class ArticleBuilder {
 			public void run() {
 				
 				articlesFromNOVINKY.getArticles(articles, articlesFromNOVINKY.getEconomyURL(), "Ekonomika", 4);
+				articlesFromNOVINKY.zeroingArticleData();
 			}
 		};
 		
@@ -304,7 +306,8 @@ public class ArticleBuilder {
 			@Override
 			public void run() {
 				
-				articleFromTN.getArticles(articles, articleFromTN.getKrimiURL(), "Krimi", 4);
+				articlesFromTN.getArticles(articles, articlesFromTN.getKrimiURL(), "Krimi", 4);
+				articlesFromTN.zeroingArticleData();
 			}
 		};
 		
@@ -315,6 +318,7 @@ public class ArticleBuilder {
 			public void run() {
 				
 				articlesFromIDNES.getArticles(articles, articlesFromIDNES.getKrimiURL(), "Krimi", 4);
+				articlesFromIDNES.zeroingArticleData();
 			}
 		};
 		
@@ -325,6 +329,7 @@ public class ArticleBuilder {
 			public void run() {
 				
 				articlesFromNOVINKY.getArticles(articles, articlesFromNOVINKY.getKrimiURL(), "Krimi", 4);
+				articlesFromNOVINKY.zeroingArticleData();
 			}
 		};
 		
@@ -347,7 +352,8 @@ public class ArticleBuilder {
 			@Override
 			public void run() {
 				
-				articleFromTN.getArticles(articles, articleFromTN.getWeatherURL(), "Počasí", 4);
+				articlesFromTN.getArticles(articles, articlesFromTN.getWeatherURL(), "Počasí", 4);
+				articlesFromTN.zeroingArticleData();
 			}
 		};
 		
@@ -358,6 +364,7 @@ public class ArticleBuilder {
 			public void run() {
 				
 				articlesFromIDNES.getArticles(articles, articlesFromIDNES.getWeatherURL(), "Počasí", 4);
+				articlesFromIDNES.zeroingArticleData();
 			}
 		};
 		
@@ -368,6 +375,7 @@ public class ArticleBuilder {
 			public void run() {
 				
 				articlesFromNOVINKY.getArticles(articles, articlesFromNOVINKY.getWeatherURL(), "Počasí", 4);
+				articlesFromNOVINKY.zeroingArticleData();
 			}
 		};
 		
@@ -382,6 +390,20 @@ public class ArticleBuilder {
 	 */
 	public List<Article> getList() {
 		return articles;
+	}
+	
+// Setter Injection ///////////////////////////////////////////////////////////////////////////////////
+	
+	public void setArticlesFromTN(ArticlesFromTN articlesFromTN) {
+		this.articlesFromTN = articlesFromTN;
+	}
+
+	public void setArticlesFromIDNES(ArticlesFromIDNES articlesFromIDNES) {
+		this.articlesFromIDNES = articlesFromIDNES;
+	}
+
+	public void setArticlesFromNOVINKY(ArticlesFromNOVINKY articlesFromNOVINKY) {
+		this.articlesFromNOVINKY = articlesFromNOVINKY;
 	}
 	
 }

@@ -8,7 +8,7 @@ import java.util.List;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 
-import cz.news_list.beans.Article;
+import cz.news_list.pojo.Article;
 
 public class ArticlesFromIDNES {
 	
@@ -37,7 +37,7 @@ public class ArticlesFromIDNES {
 	private int numberOfRequiredArticles;
 	
 	/**
-	 * 	Metoda vyselektuje nejnovější články ze zadané sekce
+	 * 	Metoda vyselektuje nejnovější články ze zadaného URL serveru
 	 * 
 	 * 	@param articles - vstupní List článků (prázdný / naplněný)
 	 * 	@param serverURL - odkaz na sekci článků
