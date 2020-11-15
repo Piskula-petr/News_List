@@ -56,15 +56,15 @@ public class ArticlesFromIDNES {
 			while (articlesAdded != numberOfRequiredArticles) {
 				
 				// Blok článku
-				Element element = Jsoup.connect(serverURL).timeout(1000).get().select("div.art").get(indexOfArticle);
+				Element element = Jsoup.connect(serverURL).timeout(1000).get().select("a.art-link").not("[target]").get(indexOfArticle);
 				
-				// Přeskakování prémiových článků			     // Přeskakování článků bez Linku										// Přeskakování onclick funkcí
-				while (element.children().hasClass("premlab") || element.select("a.art-link").not("[target]").attr("href").isEmpty() || element.select("a.art-link").not("[target]").hasAttr("onclick")) {
-					element = Jsoup.connect(serverURL).timeout(1000).get().select("div.art").get(indexOfArticle++);
+				// Přeskakování prémiových článků			     			// Omezení jen na články v kategorii			// Přeskakování onclick funkcí
+				while (element.parent().select("a").hasClass("premlab") || !element.parent().hasClass("art") || element.select("a.art-link").not("[target]").hasAttr("onclick")) {
+					element = Jsoup.connect(serverURL).timeout(1000).get().select("a.art-link").not("[target]").get(indexOfArticle++);
 				}
 				
-				// Link článku
-				String articleLink = element.select("a.art-link").not("[target]").attr("href");		// atribut target = reklamní článek
+				// Link článku - atribut target = reklamní článek
+				String articleLink = element.select("a.art-link").not("[target]").attr("href");		
 				
 				// Obrázek článku
 				String articleImage = element.select("a.art-link").not("[target]").select("img").attr("src");
@@ -84,7 +84,7 @@ public class ArticlesFromIDNES {
 				
 				// Název článku
 				String articleName = element.select("a.art-link").not("[target]").text();
-				
+
 				// Datum článku
 				String documentArticle = Jsoup.connect(articleLink).timeout(1000).get().select("span.time-date").attr("content");
 				LocalDateTime articleCreationDate = LocalDateTime.parse(documentArticle, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmz"));
