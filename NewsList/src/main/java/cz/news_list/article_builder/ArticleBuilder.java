@@ -1,6 +1,7 @@
 package cz.news_list.article_builder;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import cz.news_list.article_searcher.ArticlesFromIDNES;
@@ -14,7 +15,7 @@ public class ArticleBuilder {
 	private ArticlesFromIDNES articlesFromIDNES;
 	private ArticlesFromNOVINKY articlesFromNOVINKY;
 	
-	private List<Article> articles = new ArrayList<>();
+	private List<Article> articles = Collections.synchronizedList(new ArrayList<>());
 
 	/**
 	 * 	Metoda spouštící 3 vlákna podle zadaných runnablů
