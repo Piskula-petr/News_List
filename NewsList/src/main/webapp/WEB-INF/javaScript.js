@@ -11,7 +11,7 @@ window.onload = function() {
     }
 }
 
-//Změní formát datumu
+// Změní formát datumu
 function changeDateFormat(element) {
 	
     var date = new Date(element.innerHTML);
@@ -37,7 +37,7 @@ function changeDateFormat(element) {
     element.innerHTML = date;
 }
 
-//Zvýraznění aktuálního linku
+// Zvýraznění aktuálního linku
 var links = document.querySelectorAll("#sideNavigation a");
 
 switch (location.pathname.split('/')[2]) {

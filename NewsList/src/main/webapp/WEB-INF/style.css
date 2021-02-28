@@ -2,7 +2,7 @@ body {
 	height: 100%;
 	width: 1220px;
 	display: table;
-	margin: auto;
+	margin: 0px auto 20px auto;
 	font-family: Verdana;
 }
 

@@ -4,126 +4,93 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import cz.news_list.Topic;
 import cz.news_list.article_searcher.ArticlesFromIDNES;
 import cz.news_list.article_searcher.ArticlesFromNOVINKY;
 import cz.news_list.article_searcher.ArticlesFromTN;
 import cz.news_list.pojo.Article;
 
+@Component
 public class ArticleBuilder {
 
-	private ArticlesFromTN articlesFromTN;
+	@Autowired
 	private ArticlesFromIDNES articlesFromIDNES;
+	
+	@Autowired
 	private ArticlesFromNOVINKY articlesFromNOVINKY;
 	
-	private List<Article> articles = Collections.synchronizedList(new ArrayList<>());
-
+	@Autowired
+	private ArticlesFromTN articlesFromTN;
+	
+	private List<Article> articles = new ArrayList<>();
+	
+	
 	/**
-	 * 	Metoda spouštící 3 vlákna podle zadaných runnablů
+	 * Spuštění vláken
 	 * 
-	 * 	@param runnableTN - runnable TN.CZ
-	 * 	@param runnableIDNES - runnable IDNES.CZ
-	 * 	@param runnableNOVINKY - runnable NOVINKY.CZ
+	 * @param runnableIDNES - Runnable pro získání článků z IDNES.CZ
+	 * @param runnableNOVINKY - Runnable pro získání článků z NOVINKY.CZ
+	 * @param runnableTN - Runnable pro získání článků z TN.CZ
 	 */
-	private void startThreads(Runnable runnableTN, Runnable runnableIDNES, Runnable runnableNOVINKY) {
+	private void startThreads(Runnable runnableIDNES, Runnable runnableNOVINKY, Runnable runnableTN) {
+		
+		// Vymazání předchozích článků
+		articlesFromIDNES.clearArticles();
+		articlesFromNOVINKY.clearArticles();
+		articlesFromTN.clearArticles();
 		
 		articles.clear();
 		
 		try {
 			
-			// Vytvoření vláken
-			Thread threadTN = new Thread(runnableTN);
 			Thread threadIDNES = new Thread(runnableIDNES);
 			Thread threadNOVINKY = new Thread(runnableNOVINKY);
+			Thread threadTN = new Thread(runnableTN);
 			
-			threadTN.start();
 			threadIDNES.start();
 			threadNOVINKY.start();
-
-			threadTN.join();
+			threadTN.start();
+			
 			threadIDNES.join();
 			threadNOVINKY.join();
+			threadTN.join();
 			
-			// Dodatečné spuštění vláken, pokud není dosaženo minimální množství článků
-			while (articles.size() <= 9) {
-				
-				if (articlesFromTN.getArticlesAdded() != articlesFromTN.getNumberOfRequiredArticles()) {
-					
-					threadTN = new Thread(runnableTN);
-					threadTN.start();
-				}
-				
-				if (articlesFromIDNES.getArticlesAdded() != articlesFromIDNES.getNumberOfRequiredArticles()) {
-					
-					threadIDNES = new Thread(runnableIDNES);
-					threadIDNES.start();
-				}
-				
-				if (articlesFromNOVINKY.getArticlesAdded() != articlesFromNOVINKY.getNumberOfRequiredArticles()) {
-					
-					threadNOVINKY = new Thread(runnableNOVINKY);
-					threadNOVINKY.start();
-				}
-				
-				threadTN.join();
-				threadIDNES.join();
-				threadNOVINKY.join();
-			}
+			// Seskupení článků do Listu
+			articles.addAll(articlesFromIDNES.getArticles());
+			articles.addAll(articlesFromNOVINKY.getArticles());
+			articles.addAll(articlesFromTN.getArticles());
+			
+			// Setřídění článků od nejnovějších po nejstarší
+			Collections.sort(articles, (article1, article2) -> article1.getCreationDate().compareTo(article2.getCreationDate()));
+			Collections.reverse(articles);
 			
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
 	
-// Nejnovější články ////////////////////////////////////////////////////////////////////////////////
 	
 	/**
-	 * 	@return - vrací List nejnovějších článků z každé sekce
+	 * Získání nejnovějších článků
+	 * 
+	 * @return - vrací List nejnovějších článků
 	 */
 	public List<Article> getLatestArticles() {
 		
-		// Runnable TN.CZ		
-		Runnable runnableTN = new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				articlesFromTN.getArticles(articles, articlesFromTN.getForeignURL(), "Zahraniční", 1);
-				articlesFromTN.zeroingArticleData();
-				
-				articlesFromTN.getArticles(articles, articlesFromTN.getHomeURL(), "Domácí", 1);
-				articlesFromTN.zeroingArticleData();
-				
-				articlesFromTN.getArticles(articles, articlesFromTN.getEconomyURL(), "Ekonomika", 1);
-				articlesFromTN.zeroingArticleData();
-				
-				articlesFromTN.getArticles(articles, articlesFromTN.getKrimiURL(), "Krimi", 1);
-				articlesFromTN.zeroingArticleData();
-				
-				articlesFromTN.getArticles(articles, articlesFromTN.getWeatherURL(), "Počasí", 1);
-				articlesFromTN.zeroingArticleData();
-			}
-		};
-		
 		// Runnable IDNES.CZ
 		Runnable runnableIDNES = new Runnable() {
 			
 			@Override
 			public void run() {
-				
-				articlesFromIDNES.getArticles(articles, articlesFromIDNES.getForeignURL(), "Zahraniční", 1);
-				articlesFromIDNES.zeroingArticleData();
-				
-				articlesFromIDNES.getArticles(articles, articlesFromIDNES.getHomeURL(), "Domácí", 1);
-				articlesFromIDNES.zeroingArticleData();
-				
-				articlesFromIDNES.getArticles(articles, articlesFromIDNES.getEconomyURL(), "Ekonomika", 1);
-				articlesFromIDNES.zeroingArticleData();
-				
-				articlesFromIDNES.getArticles(articles, articlesFromIDNES.getKrimiURL(), "Krimi", 1);
-				articlesFromIDNES.zeroingArticleData();
-				
-				articlesFromIDNES.getArticles(articles, articlesFromIDNES.getWeatherURL(), "Počasí", 1);
-				articlesFromIDNES.zeroingArticleData();
+
+				articlesFromIDNES.addArticles(articlesFromIDNES.getHOME_URL(), Topic.HOME, 1);
+				articlesFromIDNES.addArticles(articlesFromIDNES.getFOREIGN_URL(), Topic.FOREIGN, 1);
+				articlesFromIDNES.addArticles(articlesFromIDNES.getECONOMY_URL(), Topic.ECONOMY, 1);
+				articlesFromIDNES.addArticles(articlesFromIDNES.getKRIMI_URL(), Topic.KRIMI, 1);
+				articlesFromIDNES.addArticles(articlesFromIDNES.getWEATHER_URL(), Topic.WEATHER, 1);
 			}
 		};
 		
@@ -132,56 +99,50 @@ public class ArticleBuilder {
 			
 			@Override
 			public void run() {
-				
-				articlesFromNOVINKY.getArticles(articles, articlesFromNOVINKY.getForeignURL(), "Zahraniční", 1);
-				articlesFromNOVINKY.zeroingArticleData();
-				
-				articlesFromNOVINKY.getArticles(articles, articlesFromNOVINKY.getHomeURL(), "Domácí", 1);
-				articlesFromNOVINKY.zeroingArticleData();
-				
-				articlesFromNOVINKY.getArticles(articles, articlesFromNOVINKY.getEconomyURL(), "Ekonomika", 1);
-				articlesFromNOVINKY.zeroingArticleData();
-				
-				articlesFromNOVINKY.getArticles(articles, articlesFromNOVINKY.getKrimiURL(), "Krimi", 1);
-				articlesFromNOVINKY.zeroingArticleData();
-				
-				articlesFromNOVINKY.getArticles(articles, articlesFromNOVINKY.getWeatherURL(), "Počasí", 1);
-				articlesFromNOVINKY.zeroingArticleData();
+
+				articlesFromNOVINKY.addArticles(articlesFromNOVINKY.getHOME_URL(), Topic.HOME, 1);
+				articlesFromNOVINKY.addArticles(articlesFromNOVINKY.getFOREIGN_URL(), Topic.FOREIGN, 1);
+				articlesFromNOVINKY.addArticles(articlesFromNOVINKY.getECONOMY_URL(), Topic.ECONOMY, 1);
+				articlesFromNOVINKY.addArticles(articlesFromNOVINKY.getKRIMI_URL(), Topic.KRIMI, 1);
+				articlesFromNOVINKY.addArticles(articlesFromNOVINKY.getWEATHER_URL(), Topic.WEATHER, 1);
 			}
 		};
 		
-		// Spuštění vláken 
-		startThreads(runnableTN, runnableIDNES, runnableNOVINKY);
+		// Runnable TN.CZ
+		Runnable runnableTN = new Runnable() {
+			
+			@Override
+			public void run() {
+
+				articlesFromTN.addArticles(articlesFromTN.getHOME_URL(), Topic.HOME, 1);
+				articlesFromTN.addArticles(articlesFromTN.getFOREIGN_URL(), Topic.FOREIGN, 1);
+				articlesFromTN.addArticles(articlesFromTN.getECONOMY_URL(), Topic.ECONOMY, 1);
+				articlesFromTN.addArticles(articlesFromTN.getKRIMI_URL(), Topic.KRIMI, 1);
+				articlesFromTN.addArticles(articlesFromTN.getWEATHER_URL(), Topic.WEATHER, 1);
+			}
+		};
+		
+		// Spuštění vláken
+		startThreads(runnableIDNES, runnableNOVINKY, runnableTN);
 		
 		return articles;
 	}
 	
-// Domácí články ////////////////////////////////////////////////////////////////////////////////////
 	
 	/**
-	 * 	@return - vrací List článků ze sekce domácí
+	 * Získání článků ze sekce domácí
+	 * 
+	 * @return - vrací List článků ze sekce domácí
 	 */
 	public List<Article> getHomeArticles() {
 		
-		// Runnable TN.CZ
-		Runnable runnableTN = new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				articlesFromTN.getArticles(articles, articlesFromTN.getHomeURL(), "Domácí", 4);
-				articlesFromTN.zeroingArticleData();
-			}
-		};
-		
-		// Runnable IDNES.CZ
+		// Runnable INDES.CZ
 		Runnable runnableIDNES = new Runnable() {
 			
 			@Override
 			public void run() {
-				
-				articlesFromIDNES.getArticles(articles, articlesFromIDNES.getHomeURL(), "Domácí", 4);
-				articlesFromIDNES.zeroingArticleData();
+
+				articlesFromIDNES.addArticles(articlesFromIDNES.getHOME_URL(), Topic.HOME, 4);
 			}
 		};
 		
@@ -191,43 +152,41 @@ public class ArticleBuilder {
 			@Override
 			public void run() {
 				
-				articlesFromNOVINKY.getArticles(articles, articlesFromNOVINKY.getHomeURL(), "Domácí", 4);
-				articlesFromNOVINKY.zeroingArticleData();
+				articlesFromNOVINKY.addArticles(articlesFromNOVINKY.getHOME_URL(), Topic.HOME, 4);
+			}
+		};
+		
+		// Runnable TN.CZ
+		Runnable runnableTN = new Runnable() {
+			
+			@Override
+			public void run() {
+				
+				articlesFromTN.addArticles(articlesFromTN.getHOME_URL(), Topic.HOME, 4);
 			}
 		};
 		
 		// Spuštění vláken
-		startThreads(runnableTN, runnableIDNES, runnableNOVINKY);
+		startThreads(runnableIDNES, runnableNOVINKY, runnableTN);
 		
 		return articles;
 	}
 	
-// Zahraniční články ////////////////////////////////////////////////////////////////////////////////
 	
 	/**
-	 * 	@return - vrací List článků ze sekce zahraniční
+	 * Získání článků ze sekce zahraniční
+	 * 
+	 * @return - vrací List článků ze sekce zahraniční
 	 */
 	public List<Article> getForeignArticles() {
 		
-		// Runnable TN.CZ
-		Runnable runnableTN = new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				articlesFromTN.getArticles(articles, articlesFromTN.getForeignURL(), "Zahraniční", 4);
-				articlesFromTN.zeroingArticleData();
-			}
-		};
-		
-		// Runnable IDNES.CZ
+		// Runnable INDES.CZ
 		Runnable runnableIDNES = new Runnable() {
 			
 			@Override
 			public void run() {
 				
-				articlesFromIDNES.getArticles(articles, articlesFromIDNES.getForeignURL(), "Zahraniční", 4);
-				articlesFromIDNES.zeroingArticleData();
+				articlesFromIDNES.addArticles(articlesFromIDNES.getFOREIGN_URL(), Topic.FOREIGN, 4);
 			}
 		};
 		
@@ -236,44 +195,42 @@ public class ArticleBuilder {
 			
 			@Override
 			public void run() {
-				
-				articlesFromNOVINKY.getArticles(articles, articlesFromNOVINKY.getForeignURL(), "Zahraniční", 4);
-				articlesFromNOVINKY.zeroingArticleData();
+
+				articlesFromNOVINKY.addArticles(articlesFromNOVINKY.getFOREIGN_URL(), Topic.FOREIGN, 4);
+			}
+		};
+		
+		// Runnable TN.CZ
+		Runnable runnableTN = new Runnable() {
+			
+			@Override
+			public void run() {
+
+				articlesFromTN.addArticles(articlesFromTN.getFOREIGN_URL(), Topic.FOREIGN, 4);
 			}
 		};
 		
 		// Spuštění vláken
-		startThreads(runnableTN, runnableIDNES, runnableNOVINKY);
+		startThreads(runnableIDNES, runnableNOVINKY, runnableTN);
 		
 		return articles;
 	}
 	
-// Ekonomické články ////////////////////////////////////////////////////////////////////////////////
 	
 	/**
-	 * 	@return - vrací List článků ze sekce ekonomika
+	 * Získání článku ze sekce ekonomika
+	 * 
+	 * @return vrací List článků ze sekce ekonomika
 	 */
 	public List<Article> getEconomyArticles() {
 		
-		// Runnable TN.CZ
-		Runnable runnableTN = new Runnable() {
+		// Runnable INDES.CZ
+		Runnable runnableIDNES = new Runnable() {
 			
 			@Override
 			public void run() {
 				
-				articlesFromTN.getArticles(articles, articlesFromTN.getEconomyURL(), "Ekonomika", 4);
-				articlesFromTN.zeroingArticleData();
-			}
-		};
-		
-		// Runnable IDNES.CZ
-		Runnable runnableIDNES =  new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				articlesFromIDNES.getArticles(articles, articlesFromIDNES.getEconomyURL(), "Ekonomika", 4);
-				articlesFromIDNES.zeroingArticleData();
+				articlesFromIDNES.addArticles(articlesFromIDNES.getECONOMY_URL(), Topic.ECONOMY, 4);
 			}
 		};
 		
@@ -282,90 +239,86 @@ public class ArticleBuilder {
 			
 			@Override
 			public void run() {
-				
-				articlesFromNOVINKY.getArticles(articles, articlesFromNOVINKY.getEconomyURL(), "Ekonomika", 4);
-				articlesFromNOVINKY.zeroingArticleData();
+
+				articlesFromNOVINKY.addArticles(articlesFromNOVINKY.getECONOMY_URL(), Topic.ECONOMY, 4);
+			}
+		};
+		
+		// Runnable TN.CZ
+		Runnable runnableTN = new Runnable() {
+			
+			@Override
+			public void run() {
+
+				articlesFromTN.addArticles(articlesFromTN.getECONOMY_URL(), Topic.ECONOMY, 4);
 			}
 		};
 		
 		// Spuštění vláken
-		startThreads(runnableTN, runnableIDNES, runnableNOVINKY);
+		startThreads(runnableIDNES, runnableNOVINKY, runnableTN);
 		
 		return articles;
 	}
 	
-// Krimi články /////////////////////////////////////////////////////////////////////////////////////
 	
 	/**
-	 * 	@return - vrací List článků ze sekce krimi
+	 * Získání článků ze sekce krimi
+	 * 
+	 * @return - vrací List článků ze sekce krimi
 	 */
 	public List<Article> getKrimiArticles() {
 		
-		// Runnable TN.CZ
-		Runnable runnableTN = new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				articlesFromTN.getArticles(articles, articlesFromTN.getKrimiURL(), "Krimi", 4);
-				articlesFromTN.zeroingArticleData();
-			}
-		};
-		
 		// Runnable IDNES.CZ
 		Runnable runnableIDNES = new Runnable() {
 			
 			@Override
 			public void run() {
 				
-				articlesFromIDNES.getArticles(articles, articlesFromIDNES.getKrimiURL(), "Krimi", 4);
-				articlesFromIDNES.zeroingArticleData();
+				articlesFromIDNES.addArticles(articlesFromIDNES.getKRIMI_URL(), Topic.KRIMI, 4);
 			}
 		};
 		
-		// Runnable NOVINKY.CZ
+		// Runnable NOVINKY.CZ 
 		Runnable runnableNOVINKY = new Runnable() {
 			
 			@Override
 			public void run() {
-				
-				articlesFromNOVINKY.getArticles(articles, articlesFromNOVINKY.getKrimiURL(), "Krimi", 4);
-				articlesFromNOVINKY.zeroingArticleData();
+
+				articlesFromNOVINKY.addArticles(articlesFromNOVINKY.getKRIMI_URL(), Topic.KRIMI, 4);
+			}
+		};
+		
+		// Runnable TN.CZ
+		Runnable runnableTN = new Runnable() {
+			
+			@Override
+			public void run() {
+
+				articlesFromTN.addArticles(articlesFromTN.getKRIMI_URL(), Topic.KRIMI, 4);
 			}
 		};
 		
 		// Spuštění vláken
-		startThreads(runnableTN, runnableIDNES, runnableNOVINKY);
+		startThreads(runnableIDNES, runnableNOVINKY, runnableTN);
 		
 		return articles;
 	}
 	
-// Počasí články ////////////////////////////////////////////////////////////////////////////////////
 	
 	/**
-	 * 	@return - vrací List článků ze sekce počasí
+	 * Získání článků ze sekce počasí
+	 *  
+	 * @return - vrací List článků ze sekce počasí
 	 */
 	public List<Article> getWeatherArticles() {
-		
-		// Runnable TN.CZ
-		Runnable runnableTN = new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				articlesFromTN.getArticles(articles, articlesFromTN.getWeatherURL(), "Počasí", 4);
-				articlesFromTN.zeroingArticleData();
-			}
-		};
-		
+	
 		// Runnable IDNES.CZ
 		Runnable runnableIDNES = new Runnable() {
 			
 			@Override
 			public void run() {
 				
-				articlesFromIDNES.getArticles(articles, articlesFromIDNES.getWeatherURL(), "Počasí", 4);
-				articlesFromIDNES.zeroingArticleData();
+				articlesFromIDNES.addArticles(articlesFromIDNES.getWEATHER_URL(), Topic.WEATHER, 4);
 			}
 		};
 		
@@ -374,37 +327,25 @@ public class ArticleBuilder {
 			
 			@Override
 			public void run() {
-				
-				articlesFromNOVINKY.getArticles(articles, articlesFromNOVINKY.getWeatherURL(), "Počasí", 4);
-				articlesFromNOVINKY.zeroingArticleData();
+
+				articlesFromNOVINKY.addArticles(articlesFromNOVINKY.getWEATHER_URL(), Topic.WEATHER, 4);
+			}
+		};
+		
+		// Runnable TN.CZ
+		Runnable runnableTN = new Runnable() {
+			
+			@Override
+			public void run() {
+
+				articlesFromTN.addArticles(articlesFromTN.getWEATHER_URL(), Topic.WEATHER, 4);
 			}
 		};
 		
 		// Spuštění vláken
-		startThreads(runnableTN, runnableIDNES, runnableNOVINKY);
+		startThreads(runnableIDNES, runnableNOVINKY, runnableTN);
 		
 		return articles;
-	}
-
-	/**
-	 * 	@return - List článků
-	 */
-	public List<Article> getList() {
-		return articles;
-	}
-	
-// Setter Injection ///////////////////////////////////////////////////////////////////////////////////
-	
-	public void setArticlesFromTN(ArticlesFromTN articlesFromTN) {
-		this.articlesFromTN = articlesFromTN;
-	}
-
-	public void setArticlesFromIDNES(ArticlesFromIDNES articlesFromIDNES) {
-		this.articlesFromIDNES = articlesFromIDNES;
-	}
-
-	public void setArticlesFromNOVINKY(ArticlesFromNOVINKY articlesFromNOVINKY) {
-		this.articlesFromNOVINKY = articlesFromNOVINKY;
 	}
 	
 }

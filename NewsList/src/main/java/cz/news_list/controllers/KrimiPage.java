@@ -1,9 +1,8 @@
 package cz.news_list.controllers;
 
-import java.io.IOException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,15 +15,22 @@ import cz.news_list.pojo.Article;
 public class KrimiPage {
 
 	@Autowired
-	private ApplicationContext applicationContext;
+	private ArticleBuilder articleBuilder;
 	
+	
+	/**
+	 * Zobrazení článků ze sekce krimi
+	 * 
+	 * @param model
+	 * 
+	 * @return - vrací název jsp stránky
+	 */
 	@RequestMapping(value = "/krimi", method = RequestMethod.GET)
-	public String showKrimiPage(Model model) throws IOException {
+	public String showKrimiPage(Model model) {
 		
-		ArticleBuilder articleBuilder = applicationContext.getBean("articleBuilder", ArticleBuilder.class);
-		articleBuilder.getKrimiArticles();
+		List<Article> articles = articleBuilder.getKrimiArticles();
 
-		model.addAttribute("articles", Article.sortListByDate(articleBuilder.getList()));
+		model.addAttribute("articles", articles);
 		
 		return "indexPage";
 	}

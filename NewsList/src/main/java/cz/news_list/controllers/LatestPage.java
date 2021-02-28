@@ -1,9 +1,8 @@
 package cz.news_list.controllers;
 
-import java.io.IOException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,15 +15,22 @@ import cz.news_list.pojo.Article;
 public class LatestPage {
 	
 	@Autowired
-	private ApplicationContext applicationContext;
-	
-	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String showLatestPage(Model model) throws IOException {
-		
-		ArticleBuilder articleBuilder = applicationContext.getBean("articleBuilder", ArticleBuilder.class);
-		articleBuilder.getLatestArticles();
+	private ArticleBuilder articleBuilder;
 
-		model.addAttribute("articles", Article.sortListByDate(articleBuilder.getList()));
+	
+	/**
+	 * Zobrazení nejnovějších článků
+	 * 
+	 * @param model
+	 * 
+	 * @return - vrací název jsp stránky
+	 */
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public String showLatestPage(Model model) {
+		
+		List<Article> articles = articleBuilder.getLatestArticles();
+
+		model.addAttribute("articles", articles);
 		
 		return "indexPage";
 	}

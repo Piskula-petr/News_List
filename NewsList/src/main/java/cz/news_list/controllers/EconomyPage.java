@@ -1,9 +1,8 @@
 package cz.news_list.controllers;
 
-import java.io.IOException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,15 +15,22 @@ import cz.news_list.pojo.Article;
 public class EconomyPage {
 
 	@Autowired
-	private ApplicationContext applicationContext;
+	private ArticleBuilder articleBuilder;
 	
+	
+	/**
+	 * Zobrazení článků ze sekce ekonomika
+	 * 
+	 * @param model
+	 * 
+	 * @return - vrací název jsp stránky
+	 */
 	@RequestMapping(value = "/ekonomika", method = RequestMethod.GET)
-	public String showEconomyPage(Model model) throws IOException {
+	public String showEconomyPage(Model model) {
 		
-		ArticleBuilder articleBuilder = applicationContext.getBean("articleBuilder", ArticleBuilder.class);
-		articleBuilder.getEconomyArticles();
+		List<Article> articles = articleBuilder.getEconomyArticles();
 		
-		model.addAttribute("articles", Article.sortListByDate(articleBuilder.getList()));
+		model.addAttribute("articles", articles);
 		
 		return "indexPage";
 	}

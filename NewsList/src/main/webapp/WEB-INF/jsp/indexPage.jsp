@@ -3,7 +3,7 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs-cz">
 	
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
@@ -17,7 +17,13 @@
 	<body>
 	
 		<!-- Záhlaví -->
-		<c:import url="header.jsp"></c:import>
+		<div id="fullWidthBar"></div>
+
+		<header>
+			<a href="/NewsList">News List
+				<img src="favicon.png">
+			</a>
+		</header>
 	
 		<!-- Navigační menu -->
 		<c:import url="sideNavigation.jsp"></c:import>

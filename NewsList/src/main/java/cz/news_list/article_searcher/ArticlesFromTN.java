@@ -1,16 +1,22 @@
 package cz.news_list.article_searcher;
 
 import java.io.IOException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.springframework.stereotype.Component;
 
+import cz.news_list.Topic;
 import cz.news_list.pojo.Article;
 
+@Component
 public class ArticlesFromTN {
 	
 	// Domácí
@@ -28,55 +34,52 @@ public class ArticlesFromTN {
 	// Počasí
 	private final String WEATHER_URL = "https://tn.nova.cz/pocasi/";
 	
-	// Index článku
-	private int indexOfArticle;
+	private List<Article> articles = new ArrayList<>();
 	
-	// Počet přidaných článků
-	private int articlesAdded;
-	
-	// Počet požadovaných článků
-	private int numberOfRequiredArticles;
 	
 	/**
-	 * 	Metoda vyselektuje nejnovější články ze zadaného URL serveru
+	 * Přidání článků do Listu
 	 * 
-	 * 	@param articles - vstupní List článků (prázdný / naplněný)
-	 * 	@param serverURL - odkaz na sekci článků
-	 * 	@param topic - sekce článků
-	 * 	@param numberOfRequiredArticles - počet požadovaných článků
-	 * 
-	 * 	@return - vrací List článků 
+	 * @param serverURL - Link na server
+	 * @param topic - Enum témat
+	 * @param numberOfArticles - počet požadovaných článků
 	 */
-	public List<Article> getArticles(List<Article> articles, String serverURL, String topic, int numberOfRequiredArticles) {
+	public void addArticles(String serverURL, Topic topic, int numberOfArticles) {
 		
-		this.numberOfRequiredArticles = numberOfRequiredArticles;
+		int articlesAdded = 0;
 		
 		try {
 			
-			// Procházení článku, dokud nebude splněno požadované množství přidaných článků
-			while (articlesAdded != numberOfRequiredArticles) {
+			int index = 0;
+			
+			URL url = new URL(serverURL);
+			Document document = Jsoup.parse(url, 3000);
+			
+			// Procházení článků, dokud nebude splněno požadované množství, nebo omezení indexu
+			while (articlesAdded != + numberOfArticles || index > 20) {
 				
 				// Blok článku
-				Element element = Jsoup.connect(serverURL).timeout(1000).get().select("div.article-with-preview").get(indexOfArticle);
-
+				Element element = document.select("div.article-with-preview").get(index);
+				
 				// Přeskakování promo článků
 				while (element.hasClass("topic-new-item-promo")) {
-					element = Jsoup.connect(serverURL).timeout(1000).get().select("div.article-with-preview").get(indexOfArticle++);
+					
+					element = document.select("div.article-with-preview").get(index++);
 				}
 				
-				// Link článku
+				// Název článku
+				String articleName = element.select("h2 a").text();
+				
+				// Odkaz článku
 				String articleLink = element.select("h2 a").attr("href");
 				
 				// Obrázek článku
 				String articleImage = element.select("img").attr("data-original-srcset");
 				
-				// Název článku
-				String articleName = element.select("h2 a").text();
-				
 				// Datum článku
 				String articleCreationDate = element.select("div.dateTime .date").text();
 				
-				// Úprava formátu datumu před parsováním
+				// Úprava formátu datumu
 				if (articleCreationDate.isEmpty()) {
 					
 					String today = LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy "));
@@ -88,20 +91,21 @@ public class ArticlesFromTN {
 					articleCreationDate = yesterday + element.select("div.dateTime .time").text();
 					
 				} else articleCreationDate = articleCreationDate + LocalDate.now().getYear() + " " + element.select("div.dateTime .time").text();
-				
+			
 				// Přidání článků do Listu pokud má všechny parametry
 				if (!articleLink.isEmpty() && !articleImage.isEmpty() && !articleName.isEmpty() && !articleCreationDate.isEmpty()) {
 					
 					Article article = new Article();
+					article.setName(articleName);
 					article.setLink(articleLink);
 					article.setImage(articleImage);
-					article.setName(articleName);
-					article.setSource("tn.cz");
 					article.setCreationDate(LocalDateTime.parse(articleCreationDate, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")));
-					article.setTopic(topic);
+					article.setSource("tn.cz");
+					article.setTopic(topic.toString());
 					
 					// Vyhledání duplicitních článků
 					boolean duplicateArticle = false;
+					
 					for (Article articleFromList : articles) {
 						
 						if (article.getName().equals(articleFromList.getName())) {
@@ -118,57 +122,50 @@ public class ArticlesFromTN {
 					}
 				}
 				
-				indexOfArticle++;
+				index++;
 			}
 			
 		} catch (IOException e) {
-			System.out.println("ERROR TN " + topic);
+
+			e.printStackTrace();
+			
+			// Rekurze, při chybě
+			addArticles(serverURL, topic, numberOfArticles);
 		}
+	}
+
+	/**
+	 * Vymazání Listu
+	 */
+	public void clearArticles() {
 		
+		articles.clear();
+	}
+	
+// Gettery ////////////////////////////////////////////////////////////////////////////////	
+	
+	public List<Article> getArticles() {
 		return articles;
 	}
 	
-	/**
-	 * 	Vynulování indexu a počtu přidaných článků
-	 */
-	public void zeroingArticleData() {
-		
-		articlesAdded = 0;
-		indexOfArticle = 0;
-	}
-	
-// Geterry /////////////////////////////////////////////////////////////////////////////////////////
-
-	public String getHomeURL() {
+	public String getHOME_URL() {
 		return HOME_URL;
 	}
-	
-	public String getForeignURL() {
+
+	public String getFOREIGN_URL() {
 		return FOREIGN_URL;
 	}
 
-	public String getEconomyURL() {
+	public String getECONOMY_URL() {
 		return ECONOMY_URL;
 	}
 
-	public String getKrimiURL() {
+	public String getKRIMI_URL() {
 		return KRIMI_URL;
 	}
 
-	public String getWeatherURL() {
+	public String getWEATHER_URL() {
 		return WEATHER_URL;
-	}
-
-	public int getArticlesAdded() {
-		return articlesAdded;
-	}
-	
-	public int getIndexOfArticle() {
-		return indexOfArticle;
-	}
-
-	public int getNumberOfRequiredArticles() {
-		return numberOfRequiredArticles;
 	}
 
 }
