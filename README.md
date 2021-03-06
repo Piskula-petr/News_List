@@ -1,7 +1,7 @@
 # 3. News List
 
 <div>
-  <img src="news_list.jpg">
+  <img src="image.jpg">
 </div> <br>
 
 ## Description
