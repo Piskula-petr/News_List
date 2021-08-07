@@ -11,6 +11,7 @@ List of latest articles from news servers. <br><br>
 * Back-End
   * Spring MVC
   * Jsoup library
+  * Lombok
 
 - Front-End
   - JavaScript
