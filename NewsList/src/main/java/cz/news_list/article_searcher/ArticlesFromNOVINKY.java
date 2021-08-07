@@ -14,8 +14,10 @@ import org.springframework.stereotype.Component;
 
 import cz.news_list.Topic;
 import cz.news_list.pojo.Article;
+import lombok.Getter;
 
 @Component
+@Getter
 public class ArticlesFromNOVINKY {
 
 	// Domácí
@@ -165,32 +167,6 @@ public class ArticlesFromNOVINKY {
 	public void clearArticles() {
 		
 		articles.clear();
-	}
-	
-// Gettery ////////////////////////////////////////////////////////////////////////////////////////////////////////	
-	
-	public List<Article> getArticles() {
-		return articles;
-	}
-	
-	public String getHOME_URL() {
-		return HOME_URL;
-	}
-
-	public String getFOREIGN_URL() {
-		return FOREIGN_URL;
-	}
-
-	public String getECONOMY_URL() {
-		return ECONOMY_URL;
-	}
-
-	public String getKRIMI_URL() {
-		return KRIMI_URL;
-	}
-
-	public String getWEATHER_URL() {
-		return WEATHER_URL;
 	}
 
 }

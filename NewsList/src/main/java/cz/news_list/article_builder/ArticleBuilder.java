@@ -36,7 +36,7 @@ public class ArticleBuilder {
 	 * @param runnableTN - Runnable pro získání článků z TN.CZ
 	 */
 	private void startThreads(Runnable runnableIDNES, Runnable runnableNOVINKY, Runnable runnableTN) {
-		
+
 		// Vymazání předchozích článků
 		articlesFromIDNES.clearArticles();
 		articlesFromNOVINKY.clearArticles();

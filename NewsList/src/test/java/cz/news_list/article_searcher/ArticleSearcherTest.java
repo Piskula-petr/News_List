@@ -27,8 +27,10 @@ public class ArticleSearcherTest {
 	@Autowired
 	private ArticleBuilder articleBuilder;
 	
-// Nejnovější Test //////////////////////////////////////////////////////////////////////////////////
-	
+		
+	/**
+	 * Test nejnovějších článků
+	 */
 	@Test
 	public void getLatestArticles() {
 		
@@ -46,8 +48,10 @@ public class ArticleSearcherTest {
 		System.out.println();
 	}
 	
-// Domácí Test //////////////////////////////////////////////////////////////////////////////////////
 	
+	/**
+	 * Test domácích článků
+	 */
 	@Test
 	public void getHomeArticles() {
 		
@@ -65,8 +69,10 @@ public class ArticleSearcherTest {
 		System.out.println();
 	}
 	
-// Zahraniční Test //////////////////////////////////////////////////////////////////////////////////
 	
+	/**
+	 * Test zahraničních článků
+	 */
 	@Test
 	public void getForeignArticles() {
 		
@@ -83,8 +89,10 @@ public class ArticleSearcherTest {
 		System.out.println();
 	}
 	
-// Ekonomické Test //////////////////////////////////////////////////////////////////////////////////
 	
+	/**
+	 * Test ekonomických článků
+	 */
 	@Test
 	public void getEconomyArticles() {
 		
@@ -102,8 +110,10 @@ public class ArticleSearcherTest {
 		System.out.println();
 	}
 	
-// Krimi Test ///////////////////////////////////////////////////////////////////////////////////////
 	
+	/**
+	 * Test krimi článků
+	 */
 	@Test
 	public void getKrimiArticles() {
 		
@@ -121,8 +131,10 @@ public class ArticleSearcherTest {
 		System.out.println();
 	}
 	
-// Počasí Test //////////////////////////////////////////////////////////////////////////////////////
 	
+	/**
+	 * Test článků o počasí
+	 */
 	@Test
 	public void getWeatherArticles() {
 		

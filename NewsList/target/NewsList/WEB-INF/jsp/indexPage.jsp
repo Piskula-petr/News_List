@@ -1,8 +1,9 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs-cz">
 	
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
@@ -16,7 +17,13 @@
 	<body>
 	
 		<!-- Záhlaví -->
-		<c:import url="header.jsp"></c:import>
+		<div id="fullWidthBar"></div>
+
+		<header>
+			<a href="/NewsList">News List
+				<img src="favicon.png">
+			</a>
+		</header>
 	
 		<!-- Navigační menu -->
 		<c:import url="sideNavigation.jsp"></c:import>
@@ -52,78 +59,6 @@
 	</body>
 	
 	<!-- Scripty -->
-	<script type="text/javascript">
-	
-		// Změní formát datumu
-	    function changeDateFormat(element) {
-			
-	        var date = new Date(element.innerHTML);
-	        var articleCreationDate = date.getDate() + "." + (date.getMonth() + 1) + ".";
-	        
-	        var dateNow = new Date();
-	        var today = dateNow.getDate() + "." + (dateNow.getMonth() + 1) + ".";
-	        var yesterday = (dateNow.getDate() - 1) + "." + (dateNow.getMonth() + 1) + ".";
-	
-	        if (articleCreationDate.includes(today)) {
-	            articleCreationDate = "dnes ";
-	            
-	        } else if (articleCreationDate.includes(yesterday)) {
-	            articleCreationDate = "včera ";
-	        }
-	
-	        // Dvoučíselný formát minut
-	        if (date.getMinutes() < 10) {
-	            date = articleCreationDate + " " + date.getHours() + ":0" + date.getMinutes();
-	        
-	        } else date = articleCreationDate + " " + date.getHours() + ":" + date.getMinutes();
-	
-	        element.innerHTML = date;
-	    }
-		
-	    // Hlavní funkce
-	    window.onload = function() {
-	    	
-	    	// Vyhledání všech elementů
-	        var elements = document.querySelectorAll("#articleCreationDate");
-	
-	        for (var i = 0; i < elements.length; i++) {
-	        	
-	        	// Změní formát datumu
-	            changeDateFormat(elements[i]);
-	        }
-	    }
-	    
-	    // Zvýraznění aktuálního linku
-	    var currentPage = location.pathname.split('/')[2];
-	    var links = document.querySelectorAll("#sideNavigation a");
-	    
-	    switch (currentPage) {
-	    
-		    case "" :
-		    	links[0].className = "active";
-		    	break;
-		    	
-		    case "domaci" : 
-		    	links[1].className = "active";
-		    	break;
-		    	
-		    case "zahranicni" :
-		    	links[2].className = "active";
-		    	break;
-		    	
-		    case "ekonomika" :
-		    	links[3].className = "active";
-		    	break;
-		    	
-		    case "krimi" :
-		    	links[4].className = "active";
-		    	break;
-		    	
-		    case "pocasi" :
-		    	links[5].className = "active";
-		    	break;
-	    }
-	    
-	</script>
+	<script type="text/javascript" src="javaScript.js"></script>
 	
 </html>

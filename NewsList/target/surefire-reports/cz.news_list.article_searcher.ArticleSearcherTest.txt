@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: cz.news_list.article_searcher.ArticleSearcherTest
 -------------------------------------------------------------------------------
-Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 15.343 sec
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 9.966 sec
